@@ -1,13 +1,9 @@
 package com.example.reclamation;
 
-import com.example.reclamation.Reclamation;
-import com.example.reclamation.ReclamationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -62,19 +58,36 @@ public class ReclamationService {
 
     public Reclamation addReclamationWithFile(Reclamation reclamation, MultipartFile file) {
         try {
-            // Sauvegarder le fichier
+            // Ensure the upload directory exists
+            File uploadDirFile = new File(uploadDir);
+            if (!uploadDirFile.exists()) {
+                uploadDirFile.mkdirs(); // Create the directory if it doesn't exist
+            }
+
+            // Save the file
             String fileName = file.getOriginalFilename();
             Path path = Paths.get(uploadDir + File.separator + fileName);
             Files.write(path, file.getBytes());
 
-            // Sauvegarder le nom du fichier dans la réclamation
+            // Set the file name in the reclamation entity
             reclamation.setFileName(fileName);
 
+            // Save to the database
             return reclamationRepository.save(reclamation);
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
     }
+    //search by client name / product
+
+    public List<Reclamation> searchByClientNomOrProduit(String keyword) {
+        return reclamationRepository.findByClientNomContainingIgnoreCaseOrProduitContainingIgnoreCase(keyword, keyword);
+    }
+    public List<Reclamation> filterByStatus(String status) {
+        return reclamationRepository.findByStatutContainingIgnoreCase(status);
+    }
+
+
 }
 

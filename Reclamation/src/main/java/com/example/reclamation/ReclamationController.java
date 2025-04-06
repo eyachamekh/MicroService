@@ -3,11 +3,24 @@ package com.example.reclamation;
 import com.example.reclamation.Reclamation;
 import com.example.reclamation.ReclamationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
+import java.io.File;
+import java.nio.file.Paths;
+
 
 @RestController
 @RequestMapping("/api/reclamations")
@@ -37,6 +50,27 @@ public class ReclamationController {
         return ResponseEntity.ok(savedReclamation);
     }
 
+    //see the file
+    @GetMapping("/files/{filename:.+}")
+    public ResponseEntity<Resource> getFile(@PathVariable String filename) throws IOException {
+        Path filePath = Paths.get("uploads").resolve(filename).normalize();
+        Resource resource = new UrlResource(filePath.toUri());
+
+        if (!resource.exists()) {
+            throw new FileNotFoundException("File not found: " + filename);
+        }
+
+        String contentType = Files.probeContentType(filePath);
+        if (contentType == null) {
+            contentType = "application/octet-stream";
+        }
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(contentType))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
+                .body(resource);
+    }
+
 
     // Modifier une réclamation
     @PutMapping("/update/{id}")
@@ -55,5 +89,22 @@ public class ReclamationController {
     public ResponseEntity<List<Reclamation>> getAllReclamations() {
         return ResponseEntity.ok(reclamationService.getAllReclamations());
     }
+
+    // Search by client name or product
+    @GetMapping("/search")
+    public ResponseEntity<List<Reclamation>> searchReclamations(@RequestParam("q") String query) {
+        List<Reclamation> results = reclamationService.searchByClientNomOrProduit(query);
+        return ResponseEntity.ok(results);
+    }
+
+    // Filter by status
+    @GetMapping("/filterByStatus")
+    public ResponseEntity<List<Reclamation>> filterReclamationsByStatus(
+            @RequestParam("status") String status) {
+
+        List<Reclamation> results = reclamationService.filterByStatus(status);
+        return ResponseEntity.ok(results);
+    }
+
 }
 

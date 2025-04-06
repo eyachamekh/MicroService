@@ -73,4 +73,5 @@ public class Reclamation {
     public void setFileName(String fileName) {
         this.fileName = fileName;
     }
+
 }
