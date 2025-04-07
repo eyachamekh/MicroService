@@ -13,6 +13,7 @@ public class Reclamation {
     private String produit;
     private String message;
     private String statut; // En attente, Traitée, Rejetée
+    private String fileName;
 
     public Reclamation() {}
 
@@ -63,5 +64,13 @@ public class Reclamation {
 
     public void setStatut(String statut) {
         this.statut = statut;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }
