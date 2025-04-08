@@ -16,11 +16,9 @@ public class GetWayApplication {
     public RouteLocator gatewayRoutes(RouteLocatorBuilder builder){
 
         return builder.routes()
-                .route("Candidat", r->r.path("/candidates/**")
-                        .uri("http://localhost:8083"))
+                .route("Reclamation", r->r.path("/reclamations/**")
+                        .uri("http://localhost:8080"))
 
-                .route("Job", r->r.path("/jobs/**")
-                        .uri("http://localhost:8081"))
                 .build();
     }
 }

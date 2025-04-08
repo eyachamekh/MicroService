@@ -71,18 +71,18 @@ public class ReclamationService {
             // Ensure the upload directory exists
             File uploadDirFile = new File(uploadDir);
             if (!uploadDirFile.exists()) {
-                uploadDirFile.mkdirs(); // Create the directory if it doesn't exist
+                uploadDirFile.mkdirs(); // creat file
             }
 
-            // Save the file
+            // save the file
             String fileName = file.getOriginalFilename();
             Path path = Paths.get(uploadDir + File.separator + fileName);
             Files.write(path, file.getBytes());
 
-            // Set the file name in the reclamation entity
+            // set the file name in the reclamation entity
             reclamation.setFileName(fileName);
 
-            // Save to the database
+            // save to the database
             return reclamationRepository.save(reclamation);
         } catch (IOException e) {
             e.printStackTrace();
