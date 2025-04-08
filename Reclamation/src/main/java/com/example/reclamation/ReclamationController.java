@@ -1,5 +1,6 @@
 package com.example.reclamation;
 
+import com.example.reclamation.EmailSmsService;
 import com.example.reclamation.Reclamation;
 import com.example.reclamation.ReclamationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.core.io.FileSystemResource;
@@ -28,11 +30,25 @@ public class ReclamationController {
 
     @Autowired
     private ReclamationService reclamationService;
+    @Autowired
+    private EmailSmsService emailSmsService;
 
-    // Ajouter une réclamation
     @PostMapping("add")
     public ResponseEntity<Reclamation> createReclamation(@RequestBody Reclamation reclamation) {
-        return ResponseEntity.ok(reclamationService.addReclamation(reclamation));
+        // Save the reclamation
+        Reclamation savedReclamation = reclamationService.addReclamation(reclamation);
+
+        // Send email notification
+        String adminEmail = "chamekheya1@gmail.com";
+        String emailMessage = "New reclamation added: " + savedReclamation.getClientNom() + " - " + savedReclamation.getProduit();
+        emailSmsService.sendEmail(adminEmail, "New Reclamation Notification", emailMessage);
+
+        // Send SMS notification (using email-to-SMS gateway)
+        String adminPhoneNumber = "93377210";
+        String smsMessage = "New reclamation added: " + savedReclamation.getClientNom() + " - " + savedReclamation.getProduit();
+        emailSmsService.sendSms(adminPhoneNumber, smsMessage);
+
+        return ResponseEntity.ok(savedReclamation);
     }
 
     // Ajouter une réclamation avec un fichier
@@ -42,9 +58,11 @@ public class ReclamationController {
             @RequestParam("produit") String produit,
             @RequestParam("message") String message,
             @RequestParam("statut") String statut,
-            @RequestParam("file") MultipartFile file) {
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("phoneNumber") String phoneNumber){
 
-        Reclamation reclamation = new Reclamation(clientNom, produit, message, statut);
+
+        Reclamation reclamation = new Reclamation(clientNom, produit, message, statut, phoneNumber);
         Reclamation savedReclamation = reclamationService.addReclamationWithFile(reclamation, file);
 
         return ResponseEntity.ok(savedReclamation);
@@ -105,6 +123,7 @@ public class ReclamationController {
         List<Reclamation> results = reclamationService.filterByStatus(status);
         return ResponseEntity.ok(results);
     }
+
 
 }
 

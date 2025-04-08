@@ -22,13 +22,16 @@ public class ReclamationService {
 
     @Autowired
     private ReclamationRepository reclamationRepository;
+    @Autowired
+    private EmailSmsService smsService;
 
     // Ajouter une réclamation
     public Reclamation addReclamation(Reclamation reclamation) {
         return reclamationRepository.save(reclamation);
     }
 
-    // Modifier une réclamation
+
+// Update the status of a reclamation and send SMS
     public Reclamation updateReclamation(Long id, Reclamation newReclamation) {
         Optional<Reclamation> optionalReclamation = reclamationRepository.findById(id);
         if (optionalReclamation.isPresent()) {
@@ -37,6 +40,13 @@ public class ReclamationService {
             existingReclamation.setProduit(newReclamation.getProduit());
             existingReclamation.setMessage(newReclamation.getMessage());
             existingReclamation.setStatut(newReclamation.getStatut());
+
+            // Send SMS when status changes
+            if (!existingReclamation.getStatut().equals(newReclamation.getStatut())) {
+                smsService.sendSms(existingReclamation.getPhoneNumber(),
+                        "Your reclamation status has been updated to: " + newReclamation.getStatut());
+            }
+
             return reclamationRepository.save(existingReclamation);
         }
         return null;

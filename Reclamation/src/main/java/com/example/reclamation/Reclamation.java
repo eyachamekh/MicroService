@@ -14,14 +14,16 @@ public class Reclamation {
     private String message;
     private String statut; // En attente, Traitée, Rejetée
     private String fileName;
+    private String phoneNumber;
 
     public Reclamation() {}
 
-    public Reclamation(String clientNom, String produit, String message, String statut) {
+    public Reclamation(String clientNom, String produit, String message, String statut, String phoneNumber) {
         this.clientNom = clientNom;
         this.produit = produit;
         this.message = message;
         this.statut = statut;
+        this.phoneNumber = phoneNumber;
     }
 
     // Getters et Setters
@@ -74,4 +76,11 @@ public class Reclamation {
         this.fileName = fileName;
     }
 
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 }
