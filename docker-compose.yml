@@ -1,14 +1,14 @@
 version: "24.0.2"
 services:
   #Configuration de eureka container
-  eurekaserver:
+  eureka:
     build:
-      context: ./EurekaServer
+      context: ./eureka
     ports:
       - "8761:8761"
     image: "eureka_image"
     environment:
-      - eureka.client.service-url.defaultZone=http://eurekaServer:8761/eureka/
+      - eureka.client.service-url.defaultZone=http://eureka:8761/eureka/
 
 
   #Configuration de Projetmicro container
@@ -19,9 +19,9 @@ services:
       - "8080:8080"
     image: "projet_microservice_image"
     environment:
-      - eureka.client.service-url.defaultZone=http://eurekaServer:8761/eureka/
+      - eureka.client.service-url.defaultZone=http://eureka:8761/eureka/
     depends_on:
-      - eurekaserver
+      - eureka
       - docker-mysql_1
 
   #configuration de mysql container
@@ -29,21 +29,21 @@ services:
     image: "mysql:5.6"
     environment:
       - MYSQL_ROOT_PASSWORD=
-      - MYSQL_DATABASE=jobs
+      - MYSQL_DATABASE=reclamation_microservice
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
     ports:
       - 3306:3306
 
 
   #Configuration de Gateway container
-  getway.jar:
+  getway:
     build:
       context: ./Getway
     ports:
-      - "8066:8066"
+      - "7000:7000"
     image: "gateway_image"
     environment:
-      - eureka.client.service-url.defaultZone=http://eurekaServer:8761/eureka/
+      - eureka.client.service-url.defaultZone=http://eureka:8761/eureka/
     depends_on:
-      - eurekaserver
+      - eureka
       - reclamation
